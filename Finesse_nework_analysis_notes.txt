@@ -1,0 +1,35 @@
+
+
+
+see in  power bi i have to two table one is updated geo table(State_Abb) and (Postal) and  and another is Shipping file table(ZipCodeFirst5)
+
+and I want to get the state_abb column from updated geo code to shipping File table based on zipcode column can u help me in look up value
+
+
+ZipCodeFirst5 = LEFT([Shipping Zip], 5) 
+
+State_Abb = LOOKUPVALUE(
+    'Updated GEO'[State_Abb],'Updated GEO'[Postal],'Shipping File'[ZipCodeFirst5])
+
+CountryStateMatch = 
+IF(
+    'Shipping File'[Shipping Country] = 'Shipping File'[State_Abb],
+    "Match",
+    "No Match"
+)
+
+
+
+ShippingSummary = 
+SUMMARIZECOLUMNS(
+    'Shipping File'[ZipCodeFirst5],
+    FILTER(
+        'Shipping File',
+        'Shipping File'[Shipping Country] = "US" 
+        || 'Shipping File'[Shipping Country] = "United States"
+    ),
+    "Distinct Store Order Count", DISTINCTCOUNT('Shipping File'[Store Order ID]),
+    "Total Actual Weight", SUM('Shipping File'[Actual Weight]),
+    "Total Item Quantity", SUM('Shipping File'[Total Item Quantity])
+)
+
